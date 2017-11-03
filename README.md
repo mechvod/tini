@@ -11,13 +11,26 @@
 Tini - A tiny but valid `init` for containers
 =============================================
 
-[![Build Status](https://travis-ci.org/krallin/tini.svg?branch=master)](https://travis-ci.org/krallin/tini)
-
-Tini is the simplest `init` you could think of.
+This is a "daemon-friendly" fork of tini, the simplest `init` you could think
+of.
 
 All Tini does is spawn a single child (Tini is meant to be run in a container),
-and wait for it to exit all the while reaping zombies and performing
-signal forwarding.
+and wait for all its "posterity" to exit, all the while reaping zombies and
+performing signal forwarding.
+
+The concept of "main child" is abandoned. Tini now does not exit immediately
+when its first child returns. Instead, every time waitpid(2) reaps a dead
+child, tini scans /proc and, if there is at least one alive process, tini
+stays running.
+
+Also, tini now retransmits signals to all processes with PPID=1 (or groups,
+depending on -g argument).
+
+Numerous bugs are beleived to exist in the added code, only perfunctory testing
+has been performed ("works for me"). Revision by a programmer with deeper
+understanding of Linux internals, signals, processes, etc. is desirable.
+
+The rest of this document is left as-is.
 
 
 Why Tini?
